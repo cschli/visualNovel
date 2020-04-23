@@ -5,11 +5,18 @@ var textIndex = 0;
 var runFlag = true;
 var existingLeftActor;
 var existingRightActor;
+var existingMusic;
 
 function addNextText() {
+    checkMusic(blockArray[blockIndex].music);
     if (Number(textIndex) + 1 <= blockArray[blockIndex].text.length && runFlag) {
         runFlag = false;
         var textBlock = "";
+        if (blockArray[blockIndex].text[textIndex].charAt(0) == "*") {
+            $("#textArea").append(document.createElement("br"));
+            $("#textArea").append(document.createElement("br"));
+            textIndex++;
+        }
         textBlock = blockArray[blockIndex].text[textIndex];
         insertActor(blockArray[blockIndex].name, blockArray[blockIndex].position);
         typeWriter(textBlock, 0);
@@ -25,14 +32,17 @@ function addNextText() {
     }
 }
 
-function typeWriter(txt, counter) {
-    if (txt.charAt(counter) == "*") {
-        $("#textArea").append(document.createElement("br"));
-        $("#textArea").append(document.createElement("br"));
-        counter++;;
-        setTimeout(function () { typeWriter(txt, counter) }, 20);
+function checkMusic(file_name, isLoad = false){
+    if (existingMusic != file_name || isLoad) {
+        var bgm = document.getElementById("bgm");
+        bgm.src = `./music/${file_name}.mp3`
+        bgm.play();
+        existingMusic = file_name;
     }
-    else if (counter < txt.length) {
+}
+
+function typeWriter(txt, counter) {
+    if (counter < txt.length) {
         document.getElementById(paragraph).innerHTML += txt.charAt(counter);
         counter++;
         setTimeout(function () { typeWriter(txt, counter) }, 20);
@@ -47,6 +57,7 @@ function saveGame() {
     localStorage.setItem('textIndex', textIndex);
     localStorage.setItem('existingLeftActor', existingLeftActor);
     localStorage.setItem('existingRightActor', existingRightActor);
+    localStorage.setItem('existingMusic', existingMusic);
     console.log("Game saved in local storage.");
 }
 
@@ -58,15 +69,22 @@ function loadGame() {
     textIndex = localStorage.getItem('textIndex', textIndex);
     existingLeftActor = localStorage.getItem('existingLeftActor', existingLeftActor);
     existingRightActor = localStorage.getItem('existingRightActor', existingRightActor);
+    existingMusic = localStorage.getItem('existingMusic', existingMusic);
     loadPreviousContent();
     console.log("Game loaded from local storage.");
 }
 
 function loadPreviousContent() {
+    checkMusic(existingMusic, true);
     insertActor(blockArray[blockIndex].name, blockArray[blockIndex].position);
     var tempTextIndex = 0;
     while (tempTextIndex < textIndex) {
-        document.getElementById(paragraph).innerHTML += (blockArray[blockIndex].text[tempTextIndex]);
+        if(blockArray[blockIndex].text[tempTextIndex] == "*") {
+            $("#textArea").append(document.createElement("br"));
+            $("#textArea").append(document.createElement("br"));
+        } else {
+            document.getElementById(paragraph).innerHTML += (blockArray[blockIndex].text[tempTextIndex]);
+        }
         tempTextIndex++;
     }
 }
@@ -97,6 +115,13 @@ function insertActor(actorName, actorPosition) {
     }
     console.log("actorName: " + actorName + ", actorPosition: " + actorPosition);
 
+    if(actorPosition == "n") {
+        $("#actorRight").html("");
+        existingLeftActor = "";
+        existingRightActor = "";
+        return;
+    }
+    
     var actor = document.createElement("img");
     actor.src = src;
     actor.width = "200";
@@ -109,11 +134,6 @@ function insertActor(actorName, actorPosition) {
         $("#actorRight").html("");
         $("#actorRight").append(actor);
         existingRightActor = actorName;
-    }
-    else {
-        $("#actorRight").html("");
-        existingLeftActor = "";
-        existingRightActor = "";
     }
 }
 
@@ -139,7 +159,8 @@ var textArrayIntro =
             " Mother nature had long taken over the ruins of the sprawling metropolis...",
             "those places that we once called home."
         ],
-    newPage: true
+    newPage: true,
+    music: "bgm1"
 };
 
 var secondBlockTest =
@@ -151,13 +172,15 @@ var secondBlockTest =
             " There were only traces of people having been there, but no corpses.",
             " It was as if they all disappeared.",
             " We didn't know what happened to everyone else, but we could at least determine what happens to us.",
-            "*The five of us began to learn what it means to live in a world devoid of others.",
+            "*",
+            " The five of us began to learn what it means to live in a world devoid of others.",
             " We tried to figure out how to survive.",
             " We started trying to build a life together.",
             " This is the story of the survivors of Event Ex.",
             " This is our story."
         ],
-    newPage: true
+    newPage: true,
+    music: "bgm1"
 }
 
 var chapter1_scene1 =
@@ -167,9 +190,10 @@ var chapter1_scene1 =
     text:
         [
             "\"It's so quiet out here,",
-            "*Hard to imagine that we're the only people remaining.\""
+            " hard to imagine that we're the only people remaining.\""
         ],
-    newPage: true
+    newPage: true,
+    music: "bgm1"
 }
 
 
