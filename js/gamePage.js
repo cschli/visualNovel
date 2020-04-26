@@ -6,9 +6,11 @@ var runFlag = true;
 var existingLeftActor;
 var existingRightActor;
 var existingMusic;
+var existingBackground;
 
 function addNextText() {
     checkMusic(blockArray[blockIndex].music);
+    checkBackground(blockArray[blockIndex].background);
     if (Number(textIndex) + 1 <= blockArray[blockIndex].text.length && runFlag) {
         runFlag = false;
         var textBlock = "";
@@ -35,9 +37,18 @@ function addNextText() {
 function checkMusic(file_name, isLoad = false){
     if (existingMusic != file_name || isLoad) {
         var bgm = document.getElementById("bgm");
-        bgm.src = `./music/${file_name}.mp3`
+        bgm.src = `./music/${file_name}`
         bgm.play();
         existingMusic = file_name;
+    }
+}
+
+function checkBackground(file_name, isLoad = false) {
+    if (existingBackground != file_name || isLoad) {
+        var background = document.getElementById("backgroundLayer");
+        background.style.backgroundImage = `url(./pictures/backgrounds/${file_name})`;
+        existingBackground = file_name;
+        console.log(`${background.style.backgroundImage}`); 
     }
 }
 
@@ -53,29 +64,45 @@ function typeWriter(txt, counter) {
 }
 
 function saveGame() {
+    saveLocalStorage();
+    console.log("Game saved in local storage.");
+    alert("Game saved to Local Storage.");
+}
+
+function saveLocalStorage() {
     localStorage.setItem('blockIndex', blockIndex);
     localStorage.setItem('textIndex', textIndex);
     localStorage.setItem('existingLeftActor', existingLeftActor);
     localStorage.setItem('existingRightActor', existingRightActor);
     localStorage.setItem('existingMusic', existingMusic);
-    console.log("Game saved in local storage.");
+    localStorage.setItem('existingBackground', existingBackground);
 }
 
 function loadGame() {
+    getFromLocalStorage();
+    loadPreviousContent();
+    console.log("Game loaded from local storage.");
+    alert("Game loaded from Local Storage.");
+}
+
+function clearExistingContent() {
     clearContent("textArea");
     clearContent("actorLeft");
     clearContent("actorRight");
-    blockIndex = localStorage.getItem('blockIndex', blockIndex);
-    textIndex = localStorage.getItem('textIndex', textIndex);
-    existingLeftActor = localStorage.getItem('existingLeftActor', existingLeftActor);
-    existingRightActor = localStorage.getItem('existingRightActor', existingRightActor);
-    existingMusic = localStorage.getItem('existingMusic', existingMusic);
-    loadPreviousContent();
-    console.log("Game loaded from local storage.");
+}
+
+function getFromLocalStorage() {
+    blockIndex = localStorage.getItem('blockIndex');
+    textIndex = localStorage.getItem('textIndex');
+    existingLeftActor = localStorage.getItem('existingLeftActor');
+    existingRightActor = localStorage.getItem('existingRightActor');
+    existingMusic = localStorage.getItem('existingMusic');
+    existingBackground = localStorage.getItem('existingBackground');
 }
 
 function loadPreviousContent() {
     checkMusic(existingMusic, true);
+    checkBackground(existingBackground, true);
     insertActor(blockArray[blockIndex].name, blockArray[blockIndex].position);
     var tempTextIndex = 0;
     while (tempTextIndex < textIndex) {
@@ -113,7 +140,6 @@ function insertActor(actorName, actorPosition) {
     } else if (actorName == "t" && actorPosition == "r") {
         src = "pictures/characters/teddy_right.png";
     }
-    console.log("actorName: " + actorName + ", actorPosition: " + actorPosition);
 
     if(actorPosition == "n") {
         $("#actorRight").html("");
@@ -160,7 +186,8 @@ var textArrayIntro =
             "those places that we once called home."
         ],
     newPage: true,
-    music: "bgm1"
+    music: "bgm1.mp3",
+    background: "blue_sky_background.jpg"
 };
 
 var secondBlockTest =
@@ -180,7 +207,8 @@ var secondBlockTest =
             " This is our story."
         ],
     newPage: true,
-    music: "bgm1"
+    music: "bgm1.mp3",
+    background: "blue_sky_background.jpg"
 }
 
 var chapter1_scene1 =
@@ -193,7 +221,8 @@ var chapter1_scene1 =
             " hard to imagine that we're the only people remaining.\""
         ],
     newPage: true,
-    music: "bgm1"
+    music: "bgm1.mp3",
+    background: "blue_sky_background.jpg"
 }
 
 
