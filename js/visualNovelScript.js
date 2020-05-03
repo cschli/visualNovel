@@ -7,31 +7,64 @@ var existingLeftActor;
 var existingRightActor;
 var existingMusic;
 var existingBackground;
+var loadUserInteraction = false;
+var settings = document.getElementById("settingsModal");
 
-function addNextText() {
-    checkMusic(blockArray[blockIndex].music);
-    checkBackground(blockArray[blockIndex].background);
-    if (Number(textIndex) + 1 <= blockArray[blockIndex].text.length && runFlag) {
-        runFlag = false;
-        var textBlock = "";
-        if (blockArray[blockIndex].text[textIndex].charAt(0) == "*") {
-            $("#textArea").append(document.createElement("br"));
-            $("#textArea").append(document.createElement("br"));
-            textIndex++;
-        }
-        textBlock = blockArray[blockIndex].text[textIndex];
-        insertActor(blockArray[blockIndex].name, blockArray[blockIndex].position);
-        typeWriter(textBlock, 0);
-    } else if (Number(textIndex) + 1 > blockArray[blockIndex].text.length && runFlag) {
-        $("#textArea").html("");
-        runFlag = false;
-        blockIndex++;
-        textIndex = 0;
-        var textBlock = "";
-        textBlock = blockArray[blockIndex].text[textIndex];
-        insertActor(blockArray[blockIndex].name, blockArray[blockIndex].position);
-        typeWriter(textBlock, 0);
+
+$(document).ready(function() {
+    if(window.location.search == "?loaded") {
+        loadGame();
     }
+})
+
+//settings related functions
+function goToSetting() {
+    settings.style.display = "block";
+}
+
+function closeSettings(){
+    settings.style.display = "none";
+}
+
+window.onclick = function(event){
+    if(event.target == settings){
+        this.settings.style.display = "none";
+    }
+}
+
+//script related functions
+function addNextText() {
+    if (runFlag) {
+        runFlag = false;
+        if(loadUserInteraction){
+            loadPreviousContent();
+        } else {
+            checkMusic(blockArray[blockIndex].music);
+            checkBackground(blockArray[blockIndex].background);
+        }
+        if (Number(textIndex) + 1 <= blockArray[blockIndex].text.length) {
+            runFlag = false;
+            var textBlock = "";
+            if (blockArray[blockIndex].text[textIndex].charAt(0) == "*") {
+                $("#textArea").append(document.createElement("br"));
+                $("#textArea").append(document.createElement("br"));
+                textIndex++;
+            }
+            textBlock = blockArray[blockIndex].text[textIndex];
+            insertActor(blockArray[blockIndex].name, blockArray[blockIndex].position);
+            typeWriter(textBlock, 0);
+        } else if (Number(textIndex) + 1 > blockArray[blockIndex].text.length) {
+            $("#textArea").html("");
+            runFlag = false;
+            blockIndex++;
+            textIndex = 0;
+            var textBlock = "";
+            textBlock = blockArray[blockIndex].text[textIndex];
+            insertActor(blockArray[blockIndex].name, blockArray[blockIndex].position);
+            typeWriter(textBlock, 0);
+        }
+    }
+    
 }
 
 function checkMusic(file_name, isLoad = false){
@@ -47,6 +80,7 @@ function checkBackground(file_name, isLoad = false) {
     if (existingBackground != file_name || isLoad) {
         var background = document.getElementById("backgroundLayer");
         background.style.backgroundImage = `url(./pictures/backgrounds/${file_name})`;
+        background.style.backgroundSize = '800px 600px';
         existingBackground = file_name;
         console.log(`${background.style.backgroundImage}`); 
     }
@@ -78,11 +112,18 @@ function saveLocalStorage() {
     localStorage.setItem('existingBackground', existingBackground);
 }
 
+function redirect() {
+    window.location.href = "gamePage.html?loaded";
+}
+
 function loadGame() {
-    getFromLocalStorage();
-    loadPreviousContent();
-    console.log("Game loaded from local storage.");
-    alert("Game loaded from Local Storage.");
+    if(runFlag) {
+        console.log("Game loaded from local storage.");
+        loadUserInteraction ? alert("Click to continue.") : alert("Game loaded from Local Storage.");
+        clearExistingContent();
+        getFromLocalStorage();
+        loadPreviousContent();
+    }
 }
 
 function clearExistingContent() {
@@ -101,18 +142,23 @@ function getFromLocalStorage() {
 }
 
 function loadPreviousContent() {
-    checkMusic(existingMusic, true);
-    checkBackground(existingBackground, true);
-    insertActor(blockArray[blockIndex].name, blockArray[blockIndex].position);
-    var tempTextIndex = 0;
-    while (tempTextIndex < textIndex) {
-        if(blockArray[blockIndex].text[tempTextIndex] == "*") {
-            $("#textArea").append(document.createElement("br"));
-            $("#textArea").append(document.createElement("br"));
-        } else {
-            document.getElementById(paragraph).innerHTML += (blockArray[blockIndex].text[tempTextIndex]);
+    if(loadUserInteraction) {
+        checkMusic(existingMusic, true);
+        checkBackground(existingBackground, true);
+        insertActor(blockArray[blockIndex].name, blockArray[blockIndex].position);
+        var tempTextIndex = 0;
+        while (tempTextIndex < textIndex) {
+            if(blockArray[blockIndex].text[tempTextIndex] == "*") {
+                $("#textArea").append(document.createElement("br"));
+                $("#textArea").append(document.createElement("br"));
+            } else {
+                document.getElementById(paragraph).innerHTML += (blockArray[blockIndex].text[tempTextIndex]);
+            }
+            tempTextIndex++;
         }
-        tempTextIndex++;
+        loadUserInteraction = false;
+    } else {
+        loadUserInteraction = true;
     }
 }
 
@@ -170,6 +216,8 @@ function clearContent(elementId) {
     }
 }
 
+
+//all script below
 var textArrayIntro =
 {
     name: "n",

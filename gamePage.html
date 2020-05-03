@@ -18,7 +18,7 @@
 
 
   <div id="novelArea">
-    <div id="backgroundLayer" style="background-image: url(pictures/backgrounds/black.jpg);">
+    <div id="backgroundLayer" style="background-image: url(pictures/backgrounds/black.jpg); background-size: 800px 600px;">
       <audio loop id="bgm">
         
       </audio>
@@ -28,6 +28,13 @@
       <div id="actorRight">
 
       </div>
+      <div id="settingsModal" class="modal">
+        <div class="modal-content">
+          <span class="close" onclick="closeSettings()">&times;</span>
+          <p>Here be some settings...</p>
+        </div>
+      </div>
+
       <div id="textArea" onclick="addNextText()" user-select: none;>
       </div>
     </div>
@@ -44,8 +51,8 @@
   </div>
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-  <script src="js/basicPage.js"></script>
-  <script src="js/gamePage.js"></script>
+  <!-- <script src="js/basicPage.js"></script> -->
+  <script src="js/visualNovelScript.js"></script>
 </body>
 
 </html>
